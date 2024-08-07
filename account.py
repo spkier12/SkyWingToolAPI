@@ -14,7 +14,7 @@ async def CreateAccount(data: classesdb.CreateUserBase):
         sqluseraccountsVAl: list = [data.Email, data.Username, pw]
 
         # Create the sql data allready converted to dict from fastapi
-        sqluserdata = "INSERT INTO UserData VALUES (%s, 0, 5000, 0)"
+        sqluserdata = "INSERT INTO UserData VALUES (%s, 0, 5000, 0, 'Unemployed')"
         sqluserdataVAl: list = [data.Email]
 
         # Create the user account and data into the Database (DomeneShop SQL MariaDB 10.4)
@@ -78,7 +78,7 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
 
     except Exception as e:
         return {
-            "Message": 'Login/Registration failed, does account exist?',
+            "Message": 'Bad username or password',
             "Error": str(e),
             "UUID": "0"
         }
