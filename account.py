@@ -2,6 +2,8 @@ import hashlib
 import classesdb
 from db import MYDB
 
+SessionTokens: dict[str, str]
+
 # Creates a user account if not exist in DB
 async def CreateAccount(data: classesdb.CreateUserBase):
     try:
@@ -28,19 +30,22 @@ async def CreateAccount(data: classesdb.CreateUserBase):
             dbcursor.close()
             return {
                 "Message": 'User Created',
-                "Error": "No Error specified"
+                "Error": "No Error specified",
+                "Status": 1,
             }
         else:
             dbcursor.close()
             return {
                 "Message": 'User Exists',
-                "Error": "No Error specified"
+                "Error": "No Error specified",
+                "Status": 0,
             }
 
     except Exception as e:
         return {
-            "Message": 'Try agen later',
-            "Error": str(e)
+            "Message": 'User Exists or a error occoured',
+            "Error": str(e),
+            "Status": 0,
         }
 
 
@@ -63,16 +68,21 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
         # Does password match
         if pw == dbresult[0][0]:
             dbcursor.close()
+
+            # Create Token for login every json from createjtoken is sendt in return here if login is OK
+            ctk = await CreateJToken(data),
             return {
-                "Message": 'Login succsesfull',
-                "Error": "No error",
-                "UUID": "02"
+                "Message": ctk.Message,
+                "Error": ctk.Error,
+                "UUID": ctk.UUID,
+                "Status": ctk.Status,
             }
         else:
             dbcursor.close()
             return {
                 "Message": 'Bad username or password',
-                "Error": "No error",
+                "Error": "No Error specifiedr",
+                "Status": 0,
                 "UUID": "0"
             }
 
@@ -80,6 +90,44 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
         return {
             "Message": 'Bad username or password',
             "Error": str(e),
+            "Status": 0,
             "UUID": "0"
         }
 
+# Create a Session token using email and hash and is valid until loggedout or relogginn
+async def CreateJToken(data: classesdb.CreateJTokenBase):
+    try:
+        SessionTokens[data.Email, await hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()]
+        print('\n Tokens in varaibles')
+        print(SessionTokens)
+        
+        return {
+            "Message": 'Token Created',
+            "Error": "No Error specified",
+            "Status": 1,
+            "UUID": SessionTokens[data.Email]
+        }
+
+    except Exception as e:
+        return {
+            "Message": 'Try agen later',
+            "Error": str(e),
+            "Status": 0
+        }
+
+
+# Verify is email and token exist in sessiontokens and if it does return status 1
+async def VerifyJToken(data: classesdb.VerifyJTokenBase):
+    try:
+        if SessionTokens[data.Email] == data.Token:
+            return {
+            "Message": 'Session Verified',
+            "Error": "No error specified",
+            "Status": 1,
+        }
+    except Exception as e:
+        return {
+            "Message": 'Session invalid',
+            "Error": str(e),
+            "Status": 0,
+        }

@@ -21,8 +21,8 @@ async def login(data: classesdb.LoginAccountBase):
     return await account.LoginAccount(data)
 
 @app.post("/apiv1/verifyuuid")
-async def createuser():
-    return {"item_id": "1", "q": "2"}
+async def createuser(data: classesdb.VerifyJTokenBase):
+    return await account.VerifyJToken(data)
 
 
 if __name__ == "__main__":

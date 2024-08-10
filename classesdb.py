@@ -8,3 +8,10 @@ class CreateUserBase(BaseModel):
 class LoginAccountBase(BaseModel):
     Email: str
     Password: str
+
+class CreateJTokenBase(BaseModel):
+    Email: str
+
+class VerifyJTokenBase(BaseModel):
+    Email: str
+    Token: str
