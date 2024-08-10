@@ -1,8 +1,10 @@
+import datetime
 import hashlib
+import random
 import classesdb
 from db import MYDB
 
-SessionTokens: dict[str, str]
+SessionTokens: dict[str, str] = {}
 
 # Creates a user account if not exist in DB
 async def CreateAccount(data: classesdb.CreateUserBase):
@@ -70,13 +72,7 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
             dbcursor.close()
 
             # Create Token for login every json from createjtoken is sendt in return here if login is OK
-            ctk = await CreateJToken(data),
-            return {
-                "Message": ctk.Message,
-                "Error": ctk.Error,
-                "UUID": ctk.UUID,
-                "Status": ctk.Status,
-            }
+            return await CreateJToken(data)
         else:
             dbcursor.close()
             return {
@@ -97,15 +93,15 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
 # Create a Session token using email and hash and is valid until loggedout or relogginn
 async def CreateJToken(data: classesdb.CreateJTokenBase):
     try:
-        SessionTokens[data.Email, await hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()]
-        print('\n Tokens in varaibles')
-        print(SessionTokens)
+        global SessionTokens
+        SessionTokensvalue = hashlib.sha512(str(random.randint(25,2500)).encode('utf-8')).hexdigest()
+        SessionTokens[str(data.Email)] = SessionTokensvalue
         
         return {
             "Message": 'Token Created',
             "Error": "No Error specified",
             "Status": 1,
-            "UUID": SessionTokens[data.Email]
+            "UUID": SessionTokensvalue
         }
 
     except Exception as e:
@@ -119,12 +115,19 @@ async def CreateJToken(data: classesdb.CreateJTokenBase):
 # Verify is email and token exist in sessiontokens and if it does return status 1
 async def VerifyJToken(data: classesdb.VerifyJTokenBase):
     try:
+        global SessionTokens
         if SessionTokens[data.Email] == data.Token:
             return {
-            "Message": 'Session Verified',
-            "Error": "No error specified",
-            "Status": 1,
-        }
+                "Message": 'Session Verified',
+                "Error": "No error specified",
+                "Status": 1,
+            }
+        else:
+            return {
+                "Message": 'Session invalid',
+                "Error": str(e),
+                "Status": 0,
+            }
     except Exception as e:
         return {
             "Message": 'Session invalid',

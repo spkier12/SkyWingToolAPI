@@ -20,8 +20,8 @@ async def createuser(data: classesdb.CreateUserBase):
 async def login(data: classesdb.LoginAccountBase):
     return await account.LoginAccount(data)
 
-@app.post("/apiv1/verifyuuid")
-async def createuser(data: classesdb.VerifyJTokenBase):
+@app.post("/apiv1/VerifyJToken")
+async def VerifyJToken(data: classesdb.VerifyJTokenBase):
     return await account.VerifyJToken(data)
 
 
