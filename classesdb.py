@@ -11,7 +11,3 @@ class LoginAccountBase(BaseModel):
 
 class CreateJTokenBase(BaseModel):
     Email: str
-
-class VerifyJTokenBase(BaseModel):
-    Email: str
-    Token: str

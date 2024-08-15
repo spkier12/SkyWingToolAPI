@@ -2,7 +2,7 @@ import datetime
 import hashlib
 import random
 import classesdb
-from db import MYDB
+from db import ConnectoMariaDB
 
 SessionTokens: dict[str, str] = {}
 
@@ -13,12 +13,13 @@ async def CreateAccount(data: classesdb.CreateUserBase):
         pw = hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()
 
         # Create the sql data allready converted to dict from fastapi
+        MYDB = await ConnectoMariaDB()
         dbcursor = MYDB.cursor()
         sqluseraccounts = "INSERT INTO UserAccounts VALUES (%s, %s, %s, 8)"
         sqluseraccountsVAl: list = [data.Email, data.Username, pw]
 
         # Create the sql data allready converted to dict from fastapi
-        sqluserdata = "INSERT INTO UserData VALUES (%s, 0, 5000, 0, 'Unemployed')"
+        sqluserdata = "INSERT INTO UserData VALUES (%s, 0, 5000, 0, 'Unemployed', 'none')"
         sqluserdataVAl: list = [data.Email]
 
         # Create the user account and data into the Database (DomeneShop SQL MariaDB 10.4)
@@ -30,6 +31,7 @@ async def CreateAccount(data: classesdb.CreateUserBase):
         # Inthatcase return a positive message or a negative one to enduser
         if dbcursor.rowcount > 0:
             dbcursor.close()
+            MYDB.close()
             return {
                 "Message": 'User Created',
                 "Error": "No Error specified",
@@ -37,6 +39,7 @@ async def CreateAccount(data: classesdb.CreateUserBase):
             }
         else:
             dbcursor.close()
+            MYDB.close()
             return {
                 "Message": 'User Exists',
                 "Error": "No Error specified",
@@ -59,6 +62,7 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
         pw = hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()
 
         # Create the sql data allready converted to dict from fastapi
+        MYDB = await ConnectoMariaDB()
         dbcursor = MYDB.cursor()
         sqluseraccounts = "SELECT Password FROM UserAccounts WHERE Email=%s"
         sqluseraccountsVAl: list = [data.Email]
@@ -70,11 +74,13 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
         # Does password match
         if pw == dbresult[0][0]:
             dbcursor.close()
+            MYDB.close()
 
             # Create Token for login every json from createjtoken is sendt in return here if login is OK
             return await CreateJToken(data)
         else:
             dbcursor.close()
+            MYDB.close()
             return {
                 "Message": 'Bad username or password',
                 "Error": "No Error specifiedr",
@@ -113,13 +119,18 @@ async def CreateJToken(data: classesdb.CreateJTokenBase):
 
 
 # Verify is email and token exist in sessiontokens and if it does return status 1
-async def VerifyJToken(data: classesdb.VerifyJTokenBase):
+async def VerifyJToken(data: str):
     try:
         global SessionTokens
-        if SessionTokens[data.Email] == data.Token:
+
+        # Split data by -
+        data2 = data.split('-')
+
+        if SessionTokens[data2[0]] == data2[1]:
             return {
                 "Message": 'Session Verified',
                 "Error": "No error specified",
+                "Email": data2[0],
                 "Status": 1,
             }
         else:
