@@ -15,20 +15,20 @@ async def home():
 
 # USER ACCOUNTS #
 @app.post("/apiv1/createuser")
-async def createuser(data: classesdb.CreateUserBase):
+async def CreateUser(data: classesdb.CreateUserBase):
     return await account.CreateAccount(data)
 
 @app.post("/apiv1/login")
-async def login(data: classesdb.LoginAccountBase):
+async def Login(data: classesdb.LoginAccountBase):
     return await account.LoginAccount(data)
 
 @app.post("/apiv1/VerifyJToken")
-async def verifyJtoken(data: Request):
+async def VerifyJToken(data: Request):
     return await account.VerifyJToken(data.headers.get('TokenMSFS'))
 
 # FLIGHTS / JOBS #
 @app.get("/apiv1/GetAllJobs")
-async def getalljobs(req: Request):
+async def GetAllJobs(req: Request):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
         return await flights.GetAllJobs()
@@ -40,6 +40,14 @@ async def GetRandomJobOffers(req: Request):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
         return await flights.GetRandomJobOffers(x['Email'])
+    else:
+        return x
+    
+@app.post("/apiv1/AcceptJobOffers")
+async def AcceptJobOffers(req: Request, data: classesdb.AcceptJobOffers):
+    x = await ValidateSession(req.headers.get('TokenMSFS'))
+    if x['Status'] == 1:
+        return await flights.AcceptJobOffers(x['Email'], data.Job)
     else:
         return x
 

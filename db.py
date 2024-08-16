@@ -14,3 +14,17 @@ async def ConnectoMariaDB():
     except Exception as e:
         print(e)
         ConnectoMariaDB()
+
+# Hetzner MariaDB 10.3
+async def ConnectoMariaDBPROD2():
+    try:
+        return mysql.connector.connect(
+            host="",
+            user="",
+            password="",
+            database="",
+        )
+    except Exception as e:
+        print(e)
+        ConnectoMariaDB()
+

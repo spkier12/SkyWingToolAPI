@@ -101,3 +101,39 @@ async def GetRandomJobOffers(Email: str):
             "Status": 0,
             "Data": ""
         }
+
+# Accept any job you have been offered '
+async def AcceptJobOffers(Email: str, Job: str):
+    try:
+
+        # Check if user has been given random job offers
+        if Email in GetRandomJobOffersStore:
+            
+            # Get the Jobs available in list and loop thru them until you get the job you wanted
+            # And return the happy message back to enduser and update DB
+            for x in GetRandomJobOffersStore[Email]:
+                print(f"\n Offered: {x} want: {Job}")
+                if Job.lower() in str(x).lower():
+                    print(f"\n You joined company: {x}")
+                    return {
+                        "Message": f'You joined company: {x}',
+                        "Error": "No error Specified",
+                        "Status": 1,
+                    }
+
+            # You can only join jobs you have been offered
+            return {
+                "Message": 'You cannot join a job that has not been offered to you',
+                "Error": "No error Specified",
+                "Status": 0,
+            }
+                
+        else:
+            pass
+
+    except Exception as e:
+        return {
+            "Message": 'Cannot find any jobs available at the moment...',
+            "Error": str(e),
+            "Status": 0,
+        }

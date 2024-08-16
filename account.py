@@ -4,7 +4,7 @@ import random
 import classesdb
 from db import ConnectoMariaDB
 
-SessionTokens: dict[str, str] = {}
+SessionTokens = {"4339ulrik@gmail.com": "10a3f9ea81f15a045197d0afa900930081489c363acb934d7aa3125c1f32540dea17e0d47612a70fcf3707c35573372033214ffdb9314e5c636a2d0f45920a9d"}
 
 # Creates a user account if not exist in DB
 async def CreateAccount(data: classesdb.CreateUserBase):

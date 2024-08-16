@@ -11,3 +11,8 @@ class LoginAccountBase(BaseModel):
 
 class CreateJTokenBase(BaseModel):
     Email: str
+
+
+class AcceptJobOffers(BaseModel):
+    Email: str
+    Job: str
