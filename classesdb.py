@@ -14,5 +14,7 @@ class CreateJTokenBase(BaseModel):
 
 
 class AcceptJobOffers(BaseModel):
-    Email: str
+    Job: str
+
+class ApplyForJobs(BaseModel):
     Job: str

@@ -64,7 +64,7 @@ async def GetRandomJobOffers(Email: str):
             dbcursor.close()
             MYDB.close()
             return {
-                "Message": 'You allready have a job',
+                "Message": 'Cannot give you job offers when you have been employed once before, apply for jobs instead',
                 "Error": "No error specified",
                 "Status": 0,
                 "Data": ""
@@ -88,7 +88,7 @@ async def GetRandomJobOffers(Email: str):
         MYDB.close()
         GetRandomJobOffersStore[Email] = lastfivejobs
         return {
-            "Message": '5 Random Job offers has been granted',
+            "Message": 'Here are some Job offers, pick one now or lose them forever \n You cannot ask for this agen \n leaving this page will result in jobs dissapering',
             "Error": "No error specified",
             "Status": 1,
             "Data": lastfivejobs
@@ -102,18 +102,18 @@ async def GetRandomJobOffers(Email: str):
             "Data": ""
         }
 
-# Accept any job you have been offered '
+# Accept any job you have been offered or 5 random will be given to you if you are new
 async def AcceptJobOffers(Email: str, Job: str):
     try:
 
         # Check if user has been given random job offers
         if Email in GetRandomJobOffersStore:
             
-            # Get the Jobs available in list and loop thru them until you get the job you wanted
+            # Get the Jobs available in list and loop through them until you get the job you wanted
             # And return the happy message back to enduser and update DB
             for x in GetRandomJobOffersStore[Email]:
                 print(f"\n Offered: {x} want: {Job}")
-                if Job.lower() in str(x).lower():
+                if Job.lower() in str(x[0]).lower():
                     print(f"\n You joined company: {x}")
                     return {
                         "Message": f'You joined company: {x}',
@@ -129,8 +129,71 @@ async def AcceptJobOffers(Email: str, Job: str):
             }
                 
         else:
-            pass
+            # Create a new connection to DB
+            MYDB = await ConnectoMariaDB()
+            dbcursor = MYDB.cursor()
+            dbcursor.execute("SELECT * FROM AppliedJobs WHERE Email=%s", [Email])
 
+            # Loop thru and check if the job you want is in the applied job as accepted
+            for Jobs, Status in dbcursor:
+                print(f"Applied jobs: {Jobs}:{Status}")
+
+            # Close the DB
+            dbcursor.close()
+            MYDB.close()
+
+    except Exception as e:
+        return {
+            "Message": 'Cannot find any jobs available at the moment...',
+            "Error": str(e),
+            "Status": 0,
+        }
+    
+
+# You can only apply for jobs that is in the database
+async def ApplyForJobs(Email: str, Job: str):
+    try:
+
+        # Create a new connection to DB
+        MYDB = await ConnectoMariaDB()
+        dbcursor = MYDB.cursor()
+        dbcursor.execute("SELECT Company FROM Jobs WHERE Company=%s", [Job])
+
+        # Loop thru DB and check if job you applied to exist and if it does
+        # Check if user has not allready applied to it, in that case return error else insert into DB
+        dbresult = dbcursor.fetchall()
+        for x in dbresult:
+            if Job in x[0]:
+
+                # Check if user has not allready applied for a job
+                dbcursor.execute("SELECT Job FROM AppliedJobs WHERE Email=%s AND Job=%s", [Email, Job])
+                dbresult2 = dbcursor.fetchall()
+                for Jobx in dbresult2:
+                    if Job in Jobx[0]:
+                        dbcursor.close()
+                        MYDB.close()
+                        return {
+                            "Message": 'You have allready applied for this job',
+                            "Error": "No error specified",
+                            "Status": 0,
+                        }
+
+                # If job exist and user has not applied then insert into database and return OK to end user 
+                dbcursor.execute("INSERT INTO AppliedJobs VALUES(%s, %s, 'Waiting')", [Email, Job])
+                MYDB.commit()
+                dbcursor.close()
+                MYDB.close()
+                return {
+                    "Message": f'You have succesfully applied for {Job}',
+                    "Error": "No error specified",
+                    "Status": 1,
+                }
+
+        return {
+            "Message": f'The job ({Job}) you applied to does not exist',
+            "Error": "No error specified",
+            "Status": 0,
+        } 
     except Exception as e:
         return {
             "Message": 'Cannot find any jobs available at the moment...',
