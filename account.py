@@ -1,13 +1,13 @@
 import datetime
 import hashlib
 import random
-import classesdb
+import payload
 from db import ConnectoMariaDB
 
 SessionTokens = {"4339ulrik@gmail.com": "10a3f9ea81f15a045197d0afa900930081489c363acb934d7aa3125c1f32540dea17e0d47612a70fcf3707c35573372033214ffdb9314e5c636a2d0f45920a9d"}
 
 # Creates a user account if not exist in DB
-async def CreateAccount(data: classesdb.CreateUserBase):
+async def CreateAccount(data: payload.CreateUserBase):
     try:
         # Hash password
         pw = hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()
@@ -56,7 +56,7 @@ async def CreateAccount(data: classesdb.CreateUserBase):
 
 
 # Checks if email and password is correct and then give out a session cookie as UUID
-async def LoginAccount(data: classesdb.LoginAccountBase):
+async def LoginAccount(data: payload.LoginAccountBase):
     try:
         # Hash password
         pw = hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()
@@ -97,7 +97,7 @@ async def LoginAccount(data: classesdb.LoginAccountBase):
         }
 
 # Create a Session token using email and hash and is valid until loggedout or relogginn
-async def CreateJToken(data: classesdb.CreateJTokenBase):
+async def CreateJToken(data: payload.CreateJTokenBase):
     try:
         global SessionTokens
         SessionTokensvalue = hashlib.sha512(str(random.randint(25,2500)).encode('utf-8')).hexdigest()

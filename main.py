@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import account
 import jobs
-import classesdb
+import payload
 
 app = FastAPI()
 
@@ -32,11 +32,11 @@ async def home():
 
 # USER ACCOUNTS #
 @app.post("/apiv1/createuser")
-async def CreateUser(data: classesdb.CreateUserBase):
+async def CreateUser(data: payload.CreateUserBase):
     return await account.CreateAccount(data)
 
 @app.post("/apiv1/login")
-async def Login(data: classesdb.LoginAccountBase):
+async def Login(data: payload.LoginAccountBase):
     return await account.LoginAccount(data)
 
 @app.post("/apiv1/VerifyJToken")
@@ -61,7 +61,7 @@ async def GetRandomJobOffers(req: Request):
         return x
 
 @app.post("/apiv1/AcceptJobOffers")
-async def AcceptJobOffers(req: Request, data: classesdb.AcceptJobOffers):
+async def AcceptJobOffers(req: Request, data: payload.AcceptJobOffers):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
         return await jobs.AcceptJobOffers(x['Email'], data.Job)
@@ -69,7 +69,7 @@ async def AcceptJobOffers(req: Request, data: classesdb.AcceptJobOffers):
         return x
 
 @app.post("/apiv1/ApplyForJobs")
-async def ApplyForJobs(req: Request, data: classesdb.AcceptJobOffers):
+async def ApplyForJobs(req: Request, data: payload.AcceptJobOffers):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
         return await jobs.ApplyForJobs(x['Email'], data.Job)

@@ -1,6 +1,7 @@
-import classesdb
+import payload
 import random
 import datetime
+import othermisc
 from db import ConnectoMariaDB
 
 
@@ -49,8 +50,8 @@ async def GetRandomJobOffers(Email: str):
             return {
                 "Message": 'You have allready been given job offers',
                 "Error": "",
-                "Status": 0,
-                "Data": ""
+                "Status": 1,
+                "Data": GetRandomJobOffersStore[Email]
             }
 
         # Create a new connection to DB
@@ -76,7 +77,7 @@ async def GetRandomJobOffers(Email: str):
         # Sort everything into list
         returndata = []
         for Company in dbcursor:
-            returndata.append(str(Company))
+            returndata.append(str(Company[0]).lower())
 
         # Select the random 5 jobs and store them in list
         lastfivejobs = []
@@ -106,17 +107,24 @@ async def GetRandomJobOffers(Email: str):
 async def AcceptJobOffers(Email: str, Job: str):
     try:
 
+        # Create a new connection to DB
+        MYDB = await ConnectoMariaDB()
+        dbcursor = MYDB.cursor()
+
         # Check if user has been given random job offers
         if Email in GetRandomJobOffersStore:
             
             # Get the Jobs available in list and loop through them until you get the job you wanted
             # And return the happy message back to enduser and update DB
             for x in GetRandomJobOffersStore[Email]:
-                print(f"\n Offered: {x} want: {Job}")
-                if Job.lower() in str(x[0]).lower():
-                    print(f"\n You joined company: {x}")
+                print(f"\n Offered: {str(x[0])} want: {Job}")
+                if Job.lower() in str(x).lower():
+                    dbcursor.execute("UPDATE UserData SET Location='Your choice', Job=%s WHERE Email=%s", [str(x).lower(), Email])
+                    MYDB.commit()
+                    dbcursor.close()
+                    MYDB.close()
                     return {
-                        "Message": f'You joined company: {x}',
+                        "Message": f'You joined company: {str(x).lower()}',
                         "Error": "No error Specified",
                         "Status": 1,
                     }
@@ -163,7 +171,7 @@ async def ApplyForJobs(Email: str, Job: str):
         # Check if user has not allready applied to it, in that case return error else insert into DB
         dbresult = dbcursor.fetchall()
         for x in dbresult:
-            if Job in x[0]:
+            if Job.lower() in x[0].lower():
 
                 # Check if user has not allready applied for a job
                 dbcursor.execute("SELECT Job FROM AppliedJobs WHERE Email=%s AND Job=%s", [Email, Job])
@@ -184,7 +192,7 @@ async def ApplyForJobs(Email: str, Job: str):
                 dbcursor.close()
                 MYDB.close()
                 return {
-                    "Message": f'You have succesfully applied for {Job}',
+                    "Message": f'You have succesfully applied for {Job.lower()}',
                     "Error": "No error specified",
                     "Status": 1,
                 }
