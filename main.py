@@ -2,10 +2,10 @@ from typing import Union
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi_simple_rate_limiter import rate_limiter
+from routes import account, jobs
+from misc import payload
 import uvicorn
-import account
-import jobs
-import payload
+
 
 app = FastAPI()
 
@@ -111,7 +111,7 @@ async def ApplyForJobs(req: Request, data: payload.AcceptJobOffers):
 
 # START WEBSERVER
 if __name__ == "__main__":
-    config = uvicorn.Config("main:app", port=5000, log_level="info")
+    config = uvicorn.Config("main:app",host="0.0.0.0", port=5000, log_level="info")
     server = uvicorn.Server(config)
     print("\n Server starting...")
     server.run()

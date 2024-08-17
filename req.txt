@@ -1,0 +1,4 @@
+fastapi_simple_rate_limiter
+fastapi
+uvicorn
+mysql-connector-python

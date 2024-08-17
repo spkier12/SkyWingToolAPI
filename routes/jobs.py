@@ -1,8 +1,6 @@
-import payload
 import random
 import datetime
-import othermisc
-from db import ConnectoMariaDB
+from misc import db
 
 
 GetRandomJobOffersStore = {}
@@ -12,7 +10,7 @@ async def GetAllJobs():
     try:
 
         # Create a new connection to DB
-        MYDB = await ConnectoMariaDB()
+        MYDB = await db.ConnectoMariaDB()
         dbcursor = MYDB.cursor()
 
         # Get all jobs available
@@ -55,7 +53,7 @@ async def GetRandomJobOffers(Email: str):
             }
 
         # Create a new connection to DB
-        MYDB = await ConnectoMariaDB()
+        MYDB = await db.ConnectoMariaDB()
         dbcursor = MYDB.cursor()
 
         # Check if user does not have a job
@@ -108,7 +106,7 @@ async def AcceptJobOffers(Email: str, Job: str):
     try:
 
         # Create a new connection to DB
-        MYDB = await ConnectoMariaDB()
+        MYDB = await db.ConnectoMariaDB()
         dbcursor = MYDB.cursor()
 
         # Check if user has been given random job offers
@@ -177,7 +175,7 @@ async def ApplyForJobs(Email: str, Job: str):
     try:
 
         # Create a new connection to DB
-        MYDB = await ConnectoMariaDB()
+        MYDB = await db.ConnectoMariaDB()
         dbcursor = MYDB.cursor()
         dbcursor.execute("SELECT Company FROM Jobs WHERE Company=%s", [Job])
 

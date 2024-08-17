@@ -1,8 +1,8 @@
 import datetime
 import hashlib
 import random
-import payload
-from db import ConnectoMariaDB
+from misc import payload
+from misc import db
 
 SessionTokens = {"4339ulrik@gmail.com": "10a3f9ea81f15a045197d0afa900930081489c363acb934d7aa3125c1f32540dea17e0d47612a70fcf3707c35573372033214ffdb9314e5c636a2d0f45920a9d"}
 
@@ -13,7 +13,7 @@ async def CreateAccount(data: payload.CreateUserBase):
         pw = hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()
 
         # Create the sql data allready converted to dict from fastapi
-        MYDB = await ConnectoMariaDB()
+        MYDB = await db.ConnectoMariaDB()
         dbcursor = MYDB.cursor()
         sqluseraccounts = "INSERT INTO UserAccounts VALUES (%s, %s, %s, 8)"
         sqluseraccountsVAl: list = [data.Email, data.Username, pw]
@@ -62,7 +62,7 @@ async def LoginAccount(data: payload.LoginAccountBase):
         pw = hashlib.sha512(str(data.Password).encode('utf-8')).hexdigest()
 
         # Create the sql data allready converted to dict from fastapi
-        MYDB = await ConnectoMariaDB()
+        MYDB = await db.ConnectoMariaDB()
         dbcursor = MYDB.cursor()
         sqluseraccounts = "SELECT Password FROM UserAccounts WHERE Email=%s"
         sqluseraccountsVAl: list = [data.Email]
