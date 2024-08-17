@@ -81,7 +81,7 @@ async def GetRandomJobOffers(Email: str):
 
         # Select the random 5 jobs and store them in list
         lastfivejobs = []
-        for x in range(5):
+        for x in range(4):
              lastfivejobs.append(str(random.choice(returndata)))
 
         # Close the connection and return the data
@@ -137,14 +137,29 @@ async def AcceptJobOffers(Email: str, Job: str):
             }
                 
         else:
-            # Create a new connection to DB
-            MYDB = await ConnectoMariaDB()
-            dbcursor = MYDB.cursor()
             dbcursor.execute("SELECT * FROM AppliedJobs WHERE Email=%s", [Email])
 
             # Loop thru and check if the job you want is in the applied job as accepted
-            for Jobs, Status in dbcursor:
-                print(f"Applied jobs: {Jobs}:{Status}")
+            for Email, Jobs, Status in dbcursor:
+                print(f"Applied jobs: {str(Email)}{str(Jobs)}:{str(Status)}")
+
+                # If the job you wanted is accepted then delete all rows for the user and join it
+                if str(Jobs) == Job.lower() and str(Status) == "ACCEPTED":
+                    dbcursor.execute("UPDATE UserData SET Location='Your choice', Job=%s WHERE Email=%s", [str(Jobs).lower(), Email])
+                    dbcursor.execute("DELETE FROM AppliedJobs WHERE Email=%s", [Email])
+                    dbcursor.close()
+                    MYDB.close()
+                    return {
+                        "Message": f'You have joined Company: {str(Jobs).lower()}',
+                        "Error": "No error specified",
+                        "Status": 1,
+                    }
+                else:
+                    return {
+                        "Message": 'This job has not yet been reviewed',
+                        "Error": "No error specified",
+                        "Status": 0,
+                    }
 
             # Close the DB
             dbcursor.close()
