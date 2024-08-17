@@ -141,7 +141,6 @@ async def AcceptJobOffers(Email: str, Job: str):
 
             # Loop thru and check if the job you want is in the applied job as accepted
             for Email, Jobs, Status in dbcursor:
-                print(f"Applied jobs: {str(Email)}{str(Jobs)}:{str(Status)}")
 
                 # If the job you wanted is accepted then delete all rows for the user and join it
                 if str(Jobs) == Job.lower() and str(Status) == "ACCEPTED":
