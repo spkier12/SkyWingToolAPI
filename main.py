@@ -52,17 +52,17 @@ async def custom_exception_handler(request: Request, exc: CustomException):
 @app.get("/")
 @rate_limiter(limit=3, seconds=60)
 async def home():
-    return {"Hello": "World"}
+    return {"Fuck": "You"}
 
 
 # USER ACCOUNTS #
 @app.post("/apiv1/createuser")
-@rate_limiter(limit=10, seconds=60)
+@rate_limiter(limit=2, seconds=60*60)
 async def CreateUser(data: payload.CreateUserBase):
     return await account.CreateAccount(data)
 
 @app.post("/apiv1/login")
-@rate_limiter(limit=10, seconds=60)
+@rate_limiter(limit=3, seconds=60)
 async def Login(data: payload.LoginAccountBase):
     return await account.LoginAccount(data)
 
@@ -73,7 +73,7 @@ async def VerifyJToken(data: Request):
 
 # JOBS #
 @app.get("/apiv1/GetAllJobs")
-@rate_limiter(limit=2, seconds=60)
+@rate_limiter(limit=2, seconds=30)
 async def GetAllJobs(req: Request):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
@@ -82,7 +82,7 @@ async def GetAllJobs(req: Request):
         return x
 
 @app.get("/apiv1/GetRandomJobOffers")
-@rate_limiter(limit=2, seconds=60)
+@rate_limiter(limit=2, seconds=30)
 async def GetRandomJobOffers(req: Request):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
@@ -100,7 +100,7 @@ async def AcceptJobOffers(req: Request, data: payload.AcceptJobOffers):
         return x
 
 @app.post("/apiv1/ApplyForJobs")
-@rate_limiter(limit=2, seconds=60)
+@rate_limiter(limit=2, seconds=30)
 async def ApplyForJobs(req: Request, data: payload.AcceptJobOffers):
     x = await ValidateSession(req.headers.get('TokenMSFS'))
     if x['Status'] == 1:
