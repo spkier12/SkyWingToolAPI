@@ -3,4 +3,3 @@ WORKDIR /
 COPY req.txt req.txt
 RUN pip install -r req.txt
 COPY . .
-CMD ["python3", "main.py"]
