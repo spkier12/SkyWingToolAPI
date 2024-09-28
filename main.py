@@ -8,6 +8,7 @@ import uvicorn
 
 
 app = FastAPI()
+app2 = "test123"
 
 origins = [
     "http://msfs.skywingtool.com",
